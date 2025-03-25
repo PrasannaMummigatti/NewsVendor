@@ -7,7 +7,7 @@ unit_cost = 5  # Cost per unit
 selling_price = 10  # Selling price per unit
 stockout_cost_per_unit = 3  # Cost per unit of unsatisfied demand
 excess_cost_per_unit = 2  # Cost per unit of unsold inventory
-order_quantities = [50,100,110,150,200]  # Different order quantities to test
+order_quantities = [i for i in range(10,200) if i%5==0]  # Different order quantities to test
 #order_quantities = [i for i in range(10,200)]  # Different order quantities to test
 simulations = 1000  # Number of demand simulations
 
