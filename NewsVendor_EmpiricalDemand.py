@@ -1,6 +1,9 @@
+from pickle import FALSE
+from tkinter import font
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker  # For percentage formatting
 
 # Parameters
 unit_cost = 5  # Cost per unit
@@ -75,8 +78,11 @@ optimal_Q = results_df.loc[results_df['Profit'].idxmax(), 'Order Quantity']
 print(f"Optimal Order Quantity (Q*): {optimal_Q}")
 
 # --------- PLOT 1: Empirical Demand Histogram & PMF ---------
+"""""
 plt.figure(figsize=(10, 6))
-
+plt.ylim(0,0.15)
+plt.xticks(np.arange(60, 160, 5))
+plt.grid(False)
 # Plot histogram
 #plt.hist(demand_data, bins=len(empirical_demand_data), edgecolor='black', alpha=0.7, color='skyblue', density=True, label="Empirical Demand Histogram")
 
@@ -96,19 +102,19 @@ plt.axvline(optimal_Q, color='black', linestyle='dashed', linewidth=2, label=f'O
 
 # Labels and formatting
 plt.xlabel('Demand')
-plt.ylabel('Probability (%)')
+plt.ylabel('Probability')
 plt.title('Empirical Demand Probability Mass Function (PMF) with Optimal Q*')
 plt.legend()
 plt.grid(axis='y', linestyle='--', alpha=0.7)
-plt.show()
-
+#plt.show()
+"""
 # --------- PLOT 2: Cost, Profit & Revenue vs. Order Quantity ---------
 plt.figure(figsize=(10, 6))
 
 # Plot Profit, Stockout Cost, Excess Cost, and Revenue
-plt.plot(results_df['Order Quantity'], results_df['Profit'], marker='o', linestyle='-', label="Profit", color='g')
-plt.plot(results_df['Order Quantity'], results_df['Total Stockout Cost'], marker='s', linestyle='--', label="Stockout Cost", color='r')
-plt.plot(results_df['Order Quantity'], results_df['Total Excess Cost'], marker='d', linestyle='-.', label="Excess Cost", color='b')
+plt.plot(results_df['Order Quantity'], results_df['Profit'], marker='', linestyle='-', label="Profit", color='g')
+plt.plot(results_df['Order Quantity'], results_df['Total Stockout Cost'], marker='', linestyle='--', label="Stockout Cost", color='r')
+plt.plot(results_df['Order Quantity'], results_df['Total Excess Cost'], marker='', linestyle='-.', label="Excess Cost", color='b')
 #plt.plot(results_df['Order Quantity'], results_df['Total Revenue'], marker='^', linestyle='-', label="Revenue", color='purple')
 
 # Labels and legend
@@ -130,7 +136,7 @@ plt.axhline(optimal_profit, color='gray', linestyle='dotted', linewidth=2, label
 # Show plot
 plt.show()
 
-# --------- PLOT 3: Cumulative Distribution Function (CDF) ---------
+"""# --------- PLOT 3: Cumulative Distribution Function (CDF) ---------
 plt.figure(figsize=(10, 6))
 
 # Plot CDF
@@ -147,9 +153,60 @@ plt.axhline(Q_cdf_value, color='gray', linestyle='dotted', linewidth=2, label=f'
 # Labels and formatting
 plt.xlabel('Demand')
 plt.ylabel('Cumulative Probability')
-plt.title('Empirical Demand Cumulative Distribution Function (CDF)')
+plt.title('Empirical Demand Cumulative Distribution Function (CDF) \n For per unit cost = 5, selling price = 10, stockout cost = 3, CR=0.625')
 plt.legend()
 plt.grid(axis='y', linestyle='--', alpha=0.7)
 
 # Show plot
+plt.show()
+"""
+# --------- PLOT 1: PMF & CDF Subplots ---------
+# Get the cumulative probability at Q*
+Q_cdf_value = np.interp(optimal_Q, unique_values, cumulative_probabilities)
+
+
+fig, axes = plt.subplots(2, 1, figsize=(10, 12))
+
+# --- (A) Probability Mass Function (PMF) ---
+#axes[0].hist(demand_data, bins=len(empirical_demand_data), edgecolor='black', alpha=0.7, color='skyblue', density=True, label="Empirical Demand Histogram")
+
+# Overlay PMF using stem plot
+markerline, stemlines, baseline = axes[0].stem(unique_values, probabilities, linefmt='r-', markerfmt='ro', basefmt=" ")
+
+# Style the PMF plot
+plt.setp(stemlines, linewidth=1.5)
+plt.setp(markerline, markersize=8)
+
+# Label each probability value as a percentage
+for x, y in zip(unique_values, percentages):
+    axes[0].text(x, y / 100, f'{y:.1f}%', ha='center', va='bottom', fontsize=10, color='black', fontweight='bold')
+
+# Show Optimal Q* Line
+axes[0].axvline(optimal_Q, color='black', linestyle='dashed', linewidth=2, label=f'Optimal Q* = {optimal_Q}')
+
+# Format y-axis as percentages
+axes[0].yaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=0))
+axes[0].set_ylim(0,0.12)
+# Labels & title
+#axes[0].set_xlabel('Demand')
+axes[0].set_ylabel('Probability (%)')
+axes[0].set_title('Empirical Demand PMF and CDF with Optimal Q* For per unit cost = 5, selling price = 10, stockout cost = 3, CR=0.625',fontsize=10)
+axes[0].legend()
+axes[0].grid(axis='y', linestyle='--', alpha=0.7)
+
+# --- (B) Cumulative Distribution Function (CDF) ---
+axes[1].step(unique_values, cumulative_probabilities, where='post', linestyle='-', color='b', linewidth=2, label='Empirical CDF')
+
+# Show Optimal Q* Lines
+axes[1].axvline(optimal_Q, color='black', linestyle='dashed', linewidth=2, label=f'Optimal Q* = {optimal_Q}')
+axes[1].axhline(Q_cdf_value, color='gray', linestyle='dotted', linewidth=2, label=f'P(D ≤ {optimal_Q}) = {Q_cdf_value:.2f}')
+axes[1].set_ylim(0,1)
+# Labels & title
+axes[1].set_xlabel('Demand')
+axes[1].set_ylabel('Cumulative Probability')
+#axes[1].set_title('Empirical Demand CDF (Step Plot)',fontsize=15)
+axes[1].legend()
+axes[1].grid(axis='y', linestyle='--', alpha=0.7)
+
+plt.tight_layout()
 plt.show()
