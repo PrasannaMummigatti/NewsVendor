@@ -1,5 +1,3 @@
-from pickle import FALSE
-from tkinter import font
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
