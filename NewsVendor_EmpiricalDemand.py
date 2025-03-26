@@ -118,7 +118,7 @@ plt.plot(results_df['Order Quantity'], results_df['Total Excess Cost'], marker='
 # Labels and legend
 plt.xlabel('Order Quantity')
 plt.ylabel('Cost / Profit / Revenue')
-plt.title('Profit, Stockout Cost, Excess Cost, and Revenue vs. Order Quantity')
+plt.title('Profit, Stockout Cost, Excess Cost  vs. Order Quantity')
 plt.legend()
 plt.grid(True)
 
